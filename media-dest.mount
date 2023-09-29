@@ -1,0 +1,16 @@
+[Unit]
+Description=mount /media/dest
+After=dev-MediaDest.device
+BindsTo=dev-MediaDest.device
+Requisite=dev-MediaDest.device
+
+[Mount]
+What=/dev/MediaDest
+Where=/media/dest
+#Type=ext3
+Type=ntfs
+Options=defaults
+
+[Install]
+WantedBy=dev-MediaDest.device
+

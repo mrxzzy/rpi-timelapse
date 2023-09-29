@@ -1,0 +1,5 @@
+
+KERNEL!="sd*", GOTO="SD_early_exit"
+#ACTION=="add", ENV{ID_FS_TYPE}=="ntfs", SYMLINK+="MediaDest", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaDest", ENV{SYSTEMD_WANTS}+="mount-dest@%k.service"
+ACTION=="add", ENV{ID_FS_LABEL}=="camera_bup", SYMLINK+="MediaDest", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaDest", ENV{SYSTEMD_WANTS}+="mount-dest@%k.service"
+LABEL="SD_early_exit"
