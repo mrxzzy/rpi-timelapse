@@ -15,4 +15,4 @@ systemctl enable rpi-timelapse.service
 udevadm control --reload-rules
 
 echo "chmod scripts.."
-chmod 755 /usr/local/bin/sd-backup.py
+chmod 755 /usr/local/bin/rpi-timelapse.py

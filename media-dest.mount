@@ -7,8 +7,8 @@ Requisite=dev-MediaDest.device
 [Mount]
 What=/dev/MediaDest
 Where=/media/dest
-#Type=ext3
-Type=ntfs
+Type=exfat
+#Type=ntfs
 Options=defaults
 
 [Install]

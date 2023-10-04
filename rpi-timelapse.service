@@ -1,5 +1,5 @@
 [Unit]
-Description=fires up the timelapse capture when the SSD drive is plugged in
+Description=rpi-timelapse, triggers when SSD plugged in.
 After=media-dest.mount
 BindsTo=media-dest.mount
 Requisite=media-dest.mount
@@ -9,7 +9,7 @@ Requisite=media-dest.mount
 
 [Service]
 StandardOutput=journal
-ExecStart=/usr/local/bin/rpi-timelapse.py --path=/media/dest/timelapse
+ExecStart=/usr/local/bin/rpi-timelapse.py --path=/media/dest/timelapse -s 1920x1080 -i 0.8
 ExecStopPost=/usr/bin/sleep 2
 ExecStopPost=/usr/bin/umount /media/dest
 TimeoutStopSec=10
