@@ -27,11 +27,11 @@ def ledblink(delay=0.3):
 def take_picture(path,config):
   global captures
 
-  ledon()
+  ledoff()
   outfile = '%s/image%09d.jpg' % (path,captures)
   camera.capture_file(outfile)
   captures = captures + 1
-  ledoff()
+  ledon()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p','--path', dest='path', default='.', help='Directory to output images into. Will make timestamped subdirectories in this folder.')
