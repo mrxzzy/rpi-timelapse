@@ -1,0 +1,39 @@
+---
+- name: "uninstall rpi-timelapse"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become_user: root
+  become: yes
+
+  tasks:
+    - name: "remove udev rules"
+      ansible.builtin.file:
+        path: /etc/udev/rules.d/99-rpi-timelapse.rules
+        state: absent
+      notify: reload udev rules
+
+    - name: "remove rpi-timelapse.py"
+      ansible.builtin.file:
+        path: /usr/local/bin/rpi-timelapse.py
+        state: absent
+
+    - name: "remove media-dest.mount service"
+      ansible.builtin.file:
+        path: /etc/systemd/system/media-dest.mount
+        state: absent
+      notify: systemctl daemon-reload
+
+    - name: "remove rpi-timelapse.service"
+      ansible.builtin.file:
+        path: /etc/systemd/system/rpi-timelapse.service
+        state: absent
+      notify: systemctl daemon-reload
+
+  handlers:
+    - name: reload udev rules
+      ansible.builtin.command: /usr/bin/udevadm control --reload-rules
+
+    - name: systemctl daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true

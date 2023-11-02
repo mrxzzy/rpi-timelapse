@@ -1,0 +1,61 @@
+---
+- name: "install rpi-timelapse"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become_user: root
+  become: yes
+
+  tasks:
+    - name: "install udev rules"
+      ansible.builtin.copy:
+        src: 99-rpi-timelapse.rules
+        dest: /etc/udev/rules.d/
+        mode: '0644'
+        owner: root
+        group: root
+      notify: reload udev rules
+
+    - name: "install rpi-timelapse.py"
+      ansible.builtin.copy:
+        src: rpi-timelapse.py
+        dest: /usr/local/bin
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: "install media-dest.mount service"
+      ansible.builtin.copy:
+        src: media-dest.mount
+        dest: /etc/systemd/system
+        mode: '0644'
+        owner: root
+        group: root
+      notify: enable media-dest.mount
+
+    - name: "install rpi-timelapse.service"
+      ansible.builtin.copy:
+        src: rpi-timelapse.service
+        dest: /etc/systemd/system
+        mode: '0644'
+        owner: root
+        group: root
+      notify: enable rpi-timelapse.service
+
+  handlers:
+    - name: reload udev rules
+      ansible.builtin.command: /usr/bin/udevadm control --reload-rules
+
+    - name: enable media-dest.mount
+      ansible.builtin.systemd:
+        name: media-dest.mount
+        enabled: true
+        daemon_reload: true
+
+    - name: enable rpi-timelapse.service
+      ansible.builtin.systemd:
+        name: rpi-timelapse.service
+        enabled: true
+        daemon_reload: true
+  
+
