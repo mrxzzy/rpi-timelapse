@@ -1,0 +1,19 @@
+---
+- name: system config for rpi-timelapse
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become_user: root
+  become: yes
+
+  tasks:
+    - name: install picamera2 python module
+      ansible.builtin.apt:
+        name: python3-picamera2
+        state: present
+
+    - name: install python apscheduler module
+      ansible.builtin.apt:
+        name: python3-apscheduler
+        state: present
+

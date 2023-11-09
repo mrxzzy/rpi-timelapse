@@ -25,6 +25,8 @@ Raspbian comes with most everything already set up, but you do need to add the p
 apt install python3-picamera2
 ```
 
+You can also do this by running the configure.yaml playbook.
+
 # Interval Tips
 
 I'm using the Camera Module 3 so these figures are based on that. But it's a safe bet the more pixels you capture the slower the script is gonna run. For my purposes I got these values:

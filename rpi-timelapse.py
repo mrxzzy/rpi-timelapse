@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import RPi.GPIO as GPIO
 import os, sys, argparse
 from picamera2 import Picamera2
 from datetime import datetime
@@ -12,26 +11,12 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 #   make a new directory based on now()
 #   loop until exit writing images
 
-def ledon():
-  GPIO.output(13,GPIO.HIGH)
-
-def ledoff():
-  GPIO.output(13,GPIO.LOW)
-
-def ledblink(delay=0.3):
-  GPIO.output(13,GPIO.HIGH)
-  time.sleep(delay)
-  GPIO.output(13,GPIO.LOW)
-  time.sleep(delay)
-
 def take_picture(path,config):
   global captures
 
-  ledoff()
   outfile = '%s/image%09d.jpg' % (path,captures)
   camera.capture_file(outfile)
   captures = captures + 1
-  ledon()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p','--path', dest='path', default='.', help='Directory to output images into. Will make timestamped subdirectories in this folder.')
@@ -48,10 +33,6 @@ if os.path.exists(args.path) and os.access(args.path, os.W_OK):
     
   print("Created output directory %s" % (path))
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(13,GPIO.OUT)
-
 camera = Picamera2()
 camera.start()
 
@@ -63,9 +44,6 @@ else:
 
 camera.switch_mode(config)
 time.sleep(1)
-ledblink(0.2)
-ledblink(0.2)
-ledblink(0.2)
 
 cron = BlockingScheduler()
 captures = 0
