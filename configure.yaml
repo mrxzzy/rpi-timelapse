@@ -7,13 +7,9 @@
   become: yes
 
   tasks:
-    - name: install picamera2 python module
+    - name: install packages for camera
       ansible.builtin.apt:
-        name: python3-picamera2
-        state: present
-
-    - name: install python apscheduler module
-      ansible.builtin.apt:
-        name: python3-apscheduler
-        state: present
+        pkg:
+          - python3-picamera2
+          - python3-apscheduler
 
