@@ -17,12 +17,15 @@ The script is configured with command line arguments. Run it with -h or read alo
   -s SIZE, --size SIZE  Size of image in WxH format. Default is sensor resolution.
 ```
 
-## Requirements
+## Install
 
-Raspbian comes with most everything already set up, but you do need to add the python module:
+Raspbian comes with most everything already set up, but you do need to add the python module. The ansible playbook does all that for you.
 
 ```
-apt install python3-picamera2
+apt update
+apt upgrade
+apt install ansible
+ansible-playbook configure.yaml
 ```
 
 You can also do this by running the configure.yaml playbook.

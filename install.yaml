@@ -1,5 +1,5 @@
 ---
-- name: "install rpi-timelapse"
+- name: system config for rpi-timelapse
   hosts: localhost
   connection: local
   gather_facts: false
@@ -7,6 +7,12 @@
   become: yes
 
   tasks:
+    - name: install packages for camera
+      ansible.builtin.apt:
+        pkg:
+          - python3-picamera2
+          - python3-apscheduler
+
     - name: "install udev rules"
       ansible.builtin.copy:
         src: 99-rpi-timelapse.rules
@@ -16,13 +22,13 @@
         group: root
       notify: reload udev rules
 
-    - name: "install rpi-timelapse.py"
+    - name: install script
       ansible.builtin.copy:
         src: rpi-timelapse.py
-        dest: /usr/local/bin
-        mode: '0755'
+        dest: /usr/local/bin/rpi-timelapse.py
         owner: root
         group: root
+        mode: '0755'
 
     - name: "install media-dest.mount service"
       ansible.builtin.copy:
@@ -57,5 +63,5 @@
         name: rpi-timelapse.service
         enabled: true
         daemon_reload: true
-  
+
 
