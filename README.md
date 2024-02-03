@@ -30,6 +30,18 @@ ansible-playbook configure.yaml
 
 You can also do this by running the configure.yaml playbook.
 
+# Test camera availability
+
+```
+libcamera-still -o test.jpg
+```
+
+```
+vcgencmd get_camera
+```
+
+libcamera-still will inform if no camera is found, and vcgencmd will show 'detected=0' if none found. 
+
 # Interval Tips
 
 I'm using the Camera Module 3 so these figures are based on that. But it's a safe bet the more pixels you capture the slower the script is gonna run. For my purposes I got these values:

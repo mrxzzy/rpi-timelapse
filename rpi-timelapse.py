@@ -5,7 +5,7 @@ from picamera2 import Picamera2
 from datetime import datetime
 import time
 from apscheduler.schedulers.blocking import BlockingScheduler
-import Status
+from rpi_status import Status
 
 def take_picture(path,config,status):
   global captures
