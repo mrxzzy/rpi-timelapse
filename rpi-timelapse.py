@@ -21,7 +21,7 @@ def take_picture(path,config,status):
   }
   status.send(output)
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARN)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p','--path', dest='path', default='.', help='Directory to output images into. Will make timestamped subdirectories in this folder.')
