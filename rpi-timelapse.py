@@ -6,6 +6,7 @@ from datetime import datetime
 import time
 from apscheduler.schedulers.blocking import BlockingScheduler
 from rpi_status import Status
+from libcamera import controls
 
 def take_picture(path,config,status):
   global captures
