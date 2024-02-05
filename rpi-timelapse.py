@@ -40,6 +40,7 @@ if os.path.exists(args.path) and os.access(args.path, os.W_OK):
 
 camera = Picamera2()
 camera.start()
+camera.set_controls({"AfMode": controls.AfModeEnum.Continuous})
 
 status = Status.Out(path=args.json_path + '/rpi-timelapse.json')
 
@@ -51,6 +52,7 @@ else:
 
 camera.switch_mode(config)
 time.sleep(1)
+camera.autofocus_cycle()
 
 cron = BlockingScheduler()
 captures = 0
