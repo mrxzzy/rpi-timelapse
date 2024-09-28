@@ -1,69 +1,89 @@
 #!/usr/bin/env python3
 
 import os, sys, argparse, logging
+
 from picamera2 import Picamera2
+from picamera2.encoders import H264Encoder, Quality
+from picamera2.outputs import FfmpegOutput
+
 from datetime import datetime
 import time
 from apscheduler.schedulers.blocking import BlockingScheduler
 from rpi_status import Status
 from libcamera import controls
 
-def take_picture(path,config,status):
-  global captures
-
-  outfile = '%s/image%09d.jpg' % (path,captures)
-  camera.capture_file(outfile)
-  captures = captures + 1
-
-  output = {
-    'captures': captures,
-    'last_file': outfile
-  }
-  status.send(output)
-
-logging.basicConfig(level=logging.WARN)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-p','--path', dest='path', default='.', help='Directory to output images into. Will make timestamped subdirectories in this folder.')
-parser.add_argument('-i','--interval', dest='interval', default=1.3, type=float, help='Seconds to delay between image captures. Default 1.3 seconds (fastest the 3B can capture without overruns.')
-parser.add_argument('-s','--size', help='Size of image in WxH format. Default is sensor resolution.')
+parser.add_argument('-p','--path', dest='path', default='.', help='Directory to output the video into. File will be named with the timestamp. Default is "."')
+parser.add_argument('-s','--size', help='Size of image in WxH format. Default is 1920x1080.')
 parser.add_argument('-j','--json-path', default='/tmp', help='Where to write the status file "rpi-timelapse.json". Default is /tmp')
+parser.add_argument('--fps', default=12, help='Sets frames per second of video. Default is 12fps')
+parser.add_argument('-d', '--debug', action='store_true', dest='verbose')
 args = parser.parse_args()
+
+if args.verbose:
+  logging.basicConfig(level=logging.DEBUG)
+else:
+  logging.basicConfig(level=logging.WARN)
 
 if os.path.exists(args.path) and os.access(args.path, os.W_OK):
   print("Directory %s exists and is writable." % (args.path))
   now = datetime.now().strftime('%Y-%m-%d-%H%M%S')
-  path = '%s/%s' % (args.path,now)
-  if not os.path.exists(path):
-    os.mkdir(path)
+  path = '%s/%s.mp4' % (args.path,now)
     
-  print("Created output directory %s" % (path))
+  logging.debug("Will output video to %s" % (path))
 
 camera = Picamera2()
-camera.start()
-camera.set_controls({"AfMode": controls.AfModeEnum.Continuous})
 
 status = Status.Out(path=args.json_path + '/rpi-timelapse.json')
 
 if args.size:
   width,height = args.size.split('x')
-  config = camera.create_still_configuration(main={"size": (int(width), int(height))})
 else:
-  config = camera.create_still_configuration()
+  width,height = (1920,1080)
 
-camera.switch_mode(config)
+resolution = (width,height)
+fps_micro = int( (1/args.fps) * 1000000 )
+
+config = camera.create_video_configuration(
+  main={ "size": resolution }
+)
+camera.configure(config)
+
+encoder = H264Encoder()
+output = FfmpegOutput(path, audio=False)
+encoder.output = output
+camera.start()
+
+camera.set_controls({"AwbEnable": False, "FrameDurationLimits": (fps_micro, fps_micro)})
+
 time.sleep(1)
 camera.autofocus_cycle()
 
-cron = BlockingScheduler()
-captures = 0
-cron.add_job(take_picture, trigger='interval', seconds=args.interval, args=[path,config,status])
+logging.debug("begin at: %s" % (datetime.now()))
+camera.start_encoder(encoder, quality=Quality.MEDIUM)
 
-try:
-  print("begin at: %s" % (datetime.now()))
-  cron.start()
-except (KeyboardInterrupt, SystemExit):
-  print("caught interrupt, cleaning up and exiting")
-  camera.close()
-  sys.exit(0)
+captures = 0
+while True:
+  try:
+    time.sleep(1)
+    tmpfile = args.json_path + '/timelapse_tmp.jpg'
+    outfile = args.json_path + '/timelapse.jpg'
+    logging.debug(outfile)
+    still = camera.capture_request()
+    still.save("main",tmpfile)
+    still.release()
+    os.rename(tmpfile,outfile)
+    output = {
+      'captures': captures,
+      'last_file': outfile
+    }
+    captures = captures + 1
+    status.send(output)
+
+  except (KeyboardInterrupt, SystemExit):
+    logging.warning("caught interrupt, cleaning up and exiting")
+    camera.stop_encoder()
+    camera.stop()
+    sys.exit(0)
 
