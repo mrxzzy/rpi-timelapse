@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys, argparse, logging
+import os, sys, argparse, logging, signal
 
 from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder, Quality
@@ -9,6 +9,16 @@ from picamera2.outputs import FfmpegOutput
 from datetime import datetime
 import time
 from rpi_status import Status
+
+class CleanupOnExit:
+  exit_now = False
+  def __init__(self):
+    signal.signal(signal.SIGINT, self.cleanup)
+    signal.signal(signal.SIGTERM, self.cleanup)
+
+  def cleanup(self, signum, frame):
+    self.exit_now = True
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p','--path', dest='path', default='.', help='Directory to output the video into. File will be named with the timestamp. Default is "."')
@@ -61,7 +71,8 @@ logging.debug("begin at: %s" % (datetime.now()))
 camera.start_encoder(encoder, quality=Quality.MEDIUM)
 
 captures = 0
-while True:
+cleanup = CleanupOnExit()
+while not cleanup.exit_now:
   try:
     time.sleep(1)
     tmpfile = args.json_path + '/timelapse_tmp.jpg'
@@ -79,8 +90,11 @@ while True:
     status.send(output)
 
   except (KeyboardInterrupt, SystemExit):
+    time.sleep(1)
     logging.warning("caught interrupt, cleaning up and exiting")
     camera.stop_encoder()
     camera.stop()
     sys.exit(0)
 
+camera.stop_encoder()
+camera.stop()
