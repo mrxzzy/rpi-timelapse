@@ -8,10 +8,7 @@ from picamera2.outputs import FfmpegOutput
 
 from datetime import datetime
 import time
-from apscheduler.schedulers.blocking import BlockingScheduler
 from rpi_status import Status
-from libcamera import controls
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p','--path', dest='path', default='.', help='Directory to output the video into. File will be named with the timestamp. Default is "."')

@@ -9,7 +9,7 @@ Requisite=media-dest.mount
 
 [Service]
 StandardOutput=journal
-ExecStart=/usr/local/bin/rpi-timelapse.py --path=/media/dest/timelapse -s 1920x1080 -i 0.8
+ExecStart=/usr/local/bin/rpi-timelapse.py --path=/media/dest/timelapse 
 ExecStopPost=/usr/bin/sleep 2
 ExecStopPost=/usr/bin/umount /media/dest
 TimeoutStopSec=10
