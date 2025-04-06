@@ -41,8 +41,9 @@ if os.path.exists(args.path) and os.access(args.path, os.W_OK):
 
 camera = Picamera2()
 camera.start()
-camera.set_controls({"AfMode": controls.AfModeEnum.Continuous})
+camera.set_controls({"AfMode": controls.AfModeEnum.Manual})
 
+# 7.2
 status = Status.Out(path=args.json_path + '/rpi-timelapse.json')
 
 if args.size:
@@ -52,8 +53,12 @@ else:
   config = camera.create_still_configuration()
 
 camera.switch_mode(config)
+
+controls = {
+  'LensPosition': 7.2
+}
+camera.set_controls(controls)
 time.sleep(1)
-camera.autofocus_cycle()
 
 cron = BlockingScheduler()
 captures = 0
